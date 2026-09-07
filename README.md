@@ -26,6 +26,19 @@ Incluye:
 
 Aún falta implementar el funcionamiento completo del registro y almacenamiento de incidencias.
 
+## Segunda fase
+La aplicación RegistroIncidencias ahora permite:
+
+- Ingresar el título de una incidencia.
+- Ingresar una descripción breve.
+- Mantener los datos introducidos mediante estado.
+- Presionar el botón "Crear reporte".
+- Mostrar una retroalimentación visible con el título ingresado.
+
+Se utilizaron remember y mutableStateOf para manejar el estado básico de la interfaz.
+
+Aún falta implementar el almacenamiento permanente de los reportes.
+
 ## Cómo abrir el proyecto
 
 1. Clonar o descargar el repositorio.

@@ -19,6 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import sv.edu.utec.etps1.registroincidencias.ui.theme.RegistroIncidenciasTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,42 +34,68 @@ class MainActivity : ComponentActivity() {
 }
 @Composable
 fun RegistroIncidenciasApp() {
+
+    val titulo = remember { mutableStateOf("") }
+    val descripcion = remember { mutableStateOf("") }
+    val mensaje = remember { mutableStateOf("Aún no hay reporte creado") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding (24.dp),
-
-    verticalArrangement = Arrangement.Center,
-    horizontalAlignment = Alignment.CenterHorizontally
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         Text(
-            text = "Control Monetario",
+            text = "Registro de incidencias",
             style = MaterialTheme.typography.headlineMedium
         )
+
         Spacer(modifier = Modifier.height(12.dp))
+
         Text(
-            text = "Control de salario y gastos, " +
-                    "mensual en el hogar ."
+            text = "Ingresa los datos básicos para preparar un reporte."
         )
+
         Spacer(modifier = Modifier.height(24.dp))
+
+        OutlinedTextField(
+            value = titulo.value,
+            onValueChange = { titulo.value = it },
+            label = { Text("Título de la incidencia") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = descripcion.value,
+            onValueChange = { descripcion.value = it },
+            label = { Text("Descripción breve") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(
+            onClick = {
+                mensaje.value = "Reporte preparado: ${titulo.value}"
+            }
+        ) {
+            Text("Crear reporte")
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = "Ingreso mensual",
-
+                    text = "Estado",
                     style = MaterialTheme.typography.titleMedium
                 )
-                Text(text = "Aún no hay registros.")
+                Text(text = mensaje.value)
             }
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(onClick = { /* Se implementará en una unidad posterior */ }) {
-            Text(
-                text = "Ingreso Mensual " ,
-
-            )
-            Text(text = "Prototipo inicial - Unidad 1.")
         }
     }
 }
