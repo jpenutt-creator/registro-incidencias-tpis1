@@ -48,6 +48,16 @@ Aún falta implementar el almacenamiento permanente de los reportes.
 5. Esperar a que Gradle termine la sincronización.
 6. Ejecutar la aplicación en un emulador o dispositivo Android.
 
+## Avance Semana 10
+
+Se mejoró la aplicación RegistroIncidencias incorporando:
+
+- Configuración de teclado contextual en el campo de título.
+- Uso de KeyboardCapitalization.Sentences.
+- Uso de ImeAction.Next.
+- Interacción táctil mediante una tarjeta clicable para seleccionar prioridad alta.
+- Retroalimentación visible de la prioridad seleccionada.
+- Ejecución comprobada en emulador.
 ## Autor
 
 Josué Penutt  
