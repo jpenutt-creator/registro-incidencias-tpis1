@@ -63,3 +63,14 @@ Se mejoró la aplicación RegistroIncidencias incorporando:
 Josué Penutt  
 Universidad Tecnológica de El Salvador  
 Técnicas de Producción Industrial de Software I
+
+## Avance Semana 11
+
+Se integró una primera lectura de sensores en la aplicación RegistroIncidencias.
+
+- Sensor utilizado: acelerómetro.
+- Se muestran las lecturas de los ejes X, Y y Z.
+- Se utilizó SensorManager y SensorEventListener.
+- El listener se controla mediante DisposableEffect.
+- Si el acelerómetro no está disponible, la aplicación muestra un mensaje informativo.
+- La lectura fue probada en el emulador modificando la posición del dispositivo y verificando que los valores X, Y y Z cambian.
