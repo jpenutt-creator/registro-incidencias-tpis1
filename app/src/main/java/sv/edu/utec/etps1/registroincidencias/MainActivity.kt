@@ -1,7 +1,9 @@
 package sv.edu.utec.etps1.registroincidencias
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -9,67 +11,265 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import sv.edu.utec.etps1.registroincidencias.ui.theme.RegistroIncidenciasTheme
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import kotlin.math.abs
+import kotlin.math.sqrt
+import android.util.Log
 class MainActivity : ComponentActivity() {
+    private val tag = "TPIS1_LIFECYCLE"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(tag, "onCreate")
+
+
         setContent {
             RegistroIncidenciasTheme {
                 RegistroIncidenciasApp()
             }
         }
     }
+    override fun onStart() {
+        super.onStart()
+        Log.d(tag, "onStart")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(tag, "onResume")
+    }
+
+    override fun onPause() {
+        Log.d(tag, "onPause")
+        super.onPause()
+    }
+
+    override fun onStop() {
+        Log.d(tag, "onStop")
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        Log.d(tag, "onDestroy")
+        super.onDestroy()
+    }
 }
+
 @Composable
 fun RegistroIncidenciasApp() {
+
+    val titulo = remember { mutableStateOf("") }
+    val descripcion = remember { mutableStateOf("") }
+    val mensaje = remember { mutableStateOf("Aún no hay reporte creado") }
+    val prioridad = remember { mutableStateOf("Sin prioridad") }
+    val context = LocalContext.current
+
+    val sensorManager = remember {
+        context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+    }
+
+    val accelerometer = remember {
+        sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+    }
+
+    val x = remember { mutableStateOf(0f) }
+    val y = remember { mutableStateOf(0f) }
+    val z = remember { mutableStateOf(0f) }
+    val magnitud = sqrt(
+        x.value * x.value +
+                y.value * y.value +
+                z.value * z.value
+    )
+
+    val estadoMovimiento = if (accelerometer == null) {
+        "Sensor no disponible"
+    } else if (abs(magnitud - 9.81f) > 1.5f) {
+        "Movimiento detectado"
+    } else {
+        "Dispositivo estable"
+    }
+    DisposableEffect(accelerometer) {
+
+        val listener = object : SensorEventListener {
+
+            override fun onSensorChanged(event: SensorEvent) {
+                x.value = event.values[0]
+                y.value = event.values[1]
+                z.value = event.values[2]
+            }
+
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+            }
+        }
+
+        if (accelerometer != null) {
+            sensorManager.registerListener(
+                listener,
+                accelerometer,
+                SensorManager.SENSOR_DELAY_NORMAL
+            )
+        }
+
+        onDispose {
+            sensorManager.unregisterListener(listener)
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding (24.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
 
-    verticalArrangement = Arrangement.Center,
-    horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         Text(
-            text = "Control Monetario",
+            text = "Registro de incidencias",
             style = MaterialTheme.typography.headlineMedium
         )
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = "Control de salario y gastos, " +
-                    "mensual en el hogar ."
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "Ingreso mensual",
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = "Ingresa los datos básicos para preparar un reporte."
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        OutlinedTextField(
+            value = titulo.value,
+            onValueChange = { titulo.value = it },
+            label = { Text("Título de la incidencia") },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Sentences,
+                imeAction = ImeAction.Next
+            )
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = descripcion.value,
+            onValueChange = { descripcion.value = it },
+            label = { Text("Descripción breve") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    prioridad.value = "Alta"
+                }
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(
+                    text = "Prioridad alta",
                     style = MaterialTheme.typography.titleMedium
                 )
-                Text(text = "Aún no hay registros.")
+
+                Text(
+                    text = "Toca para seleccionar esta prioridad"
+                )
             }
         }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = "Prioridad seleccionada: ${prioridad.value}"
+        )
+
         Spacer(modifier = Modifier.height(24.dp))
 
-        Button(onClick = { /* Se implementará en una unidad posterior */ }) {
-            Text(
-                text = "Ingreso Mensual " ,
+        Spacer(modifier = Modifier.height(16.dp))
 
-            )
-            Text(text = "Prototipo inicial - Unidad 1.")
+        Card(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(
+                    text = "Acelerómetro",
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                if (accelerometer != null) {
+                    Text("X: ${x.value}")
+                    Text("Y: ${y.value}")
+                    Text("Z: ${z.value}")
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "Estado: $estadoMovimiento",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                } else {
+                    Text("Acelerómetro no disponible en este dispositivo")
+                }
+            }
+        }
+
+        Button(
+            onClick = {
+                mensaje.value = "Reporte preparado: ${titulo.value}"
+            }
+        ) {
+            Text("Crear reporte")
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(
+                    text = "Estado",
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Text(
+                    text = mensaje.value
+                )
+            }
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun RegistroIncidenciasPreview() {
