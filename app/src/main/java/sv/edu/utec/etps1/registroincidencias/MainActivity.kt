@@ -39,12 +39,16 @@ import androidx.compose.foundation.verticalScroll
 import kotlin.math.abs
 import kotlin.math.sqrt
 import android.util.Log
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 class MainActivity : ComponentActivity() {
+
     private val tag = "TPIS1_LIFECYCLE"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(tag, "onCreate")
-
 
         setContent {
             RegistroIncidenciasTheme {
@@ -52,6 +56,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
     override fun onStart() {
         super.onStart()
         Log.d(tag, "onStart")
@@ -81,7 +86,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun RegistroIncidenciasApp() {
 
-    val titulo = remember { mutableStateOf("") }
+    var titulo by rememberSaveable { mutableStateOf("") }
     val descripcion = remember { mutableStateOf("") }
     val mensaje = remember { mutableStateOf("Aún no hay reporte creado") }
     val prioridad = remember { mutableStateOf("Sin prioridad") }
@@ -162,8 +167,8 @@ fun RegistroIncidenciasApp() {
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
-            value = titulo.value,
-            onValueChange = { titulo.value = it },
+            value = titulo,
+            onValueChange = { titulo = it },
             label = { Text("Título de la incidencia") },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(
@@ -243,7 +248,7 @@ fun RegistroIncidenciasApp() {
 
         Button(
             onClick = {
-                mensaje.value = "Reporte preparado: ${titulo.value}"
+                mensaje.value = "Reporte preparado: $titulo"
             }
         ) {
             Text("Crear reporte")
