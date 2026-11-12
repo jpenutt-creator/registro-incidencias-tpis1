@@ -42,6 +42,7 @@ import android.util.Log
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 class MainActivity : ComponentActivity() {
 
     private val tag = "TPIS1_LIFECYCLE"
@@ -84,14 +85,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun RegistroIncidenciasApp() {
+fun RegistroIncidenciasApp(
+    vm: IncidenciaViewModel = viewModel()
+) {
 
-    var titulo by rememberSaveable { mutableStateOf("") }
+
     val descripcion = remember { mutableStateOf("") }
     val mensaje = remember { mutableStateOf("Aún no hay reporte creado") }
-    val prioridad = remember { mutableStateOf("Sin prioridad") }
     val context = LocalContext.current
-
     val sensorManager = remember {
         context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     }
@@ -167,8 +168,8 @@ fun RegistroIncidenciasApp() {
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
-            value = titulo,
-            onValueChange = { titulo = it },
+            value = vm.titulo,
+            onValueChange = vm::actualizarTitulo,
             label = { Text("Título de la incidencia") },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(
@@ -192,7 +193,7 @@ fun RegistroIncidenciasApp() {
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
-                    prioridad.value = "Alta"
+                    vm.seleccionarPrioridad()
                 }
         ) {
             Column(
@@ -212,7 +213,7 @@ fun RegistroIncidenciasApp() {
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "Prioridad seleccionada: ${prioridad.value}"
+            text = "Prioridad seleccionada: ${vm.prioridad}"
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -248,7 +249,7 @@ fun RegistroIncidenciasApp() {
 
         Button(
             onClick = {
-                mensaje.value = "Reporte preparado: $titulo"
+                mensaje.value = "Reporte preparado: ${vm.titulo}"
             }
         ) {
             Text("Crear reporte")
